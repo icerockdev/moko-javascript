@@ -23,8 +23,8 @@ dependencies {
     commonTestImplementation(Deps.Libs.MultiPlatform.kotlinTestAnnotations)
     commonTestImplementation(Deps.Libs.MultiPlatform.mokoTest)
 
-    androidTestImplementation("androidx.test:runner:1.3.0")
-    androidTestImplementation("androidx.test:rules:1.3.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.2")
-    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.2")
+    androidTestImplementation(Deps.Libs.Android.testRunner)
+    androidTestImplementation(Deps.Libs.Android.testRules)
+    androidTestImplementation(Deps.Libs.Android.testJUnitExt)
+    androidTestImplementation(Deps.Libs.Android.testJUnitExtKtx)
 }

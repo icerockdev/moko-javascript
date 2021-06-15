@@ -8,7 +8,8 @@ object Deps {
     private const val androidAppCompatVersion = "1.1.0"
     private const val materialDesignVersion = "1.0.0"
     private const val androidLifecycleVersion = "2.1.0"
-    private const val androidCoreTestingVersion = "2.1.0"
+    private const val androidCoreTestingVersion = "1.3.0"
+    private const val testJUnitExtVersion = "1.1.2"
     private const val quickjsVersion = "0.9.0"
 
     private const val coroutinesVersion = "1.4.2"
@@ -28,6 +29,11 @@ object Deps {
             const val appCompat = "androidx.appcompat:appcompat:$androidAppCompatVersion"
             const val material = "com.google.android.material:material:$materialDesignVersion"
             const val lifecycle = "androidx.lifecycle:lifecycle-extensions:$androidLifecycleVersion"
+
+            const val testRunner = "androidx.test:runner:$androidCoreTestingVersion"
+            const val testRules = "androidx.test:rules:$androidCoreTestingVersion"
+            const val testJUnitExt = "androidx.test.ext:junit:$testJUnitExtVersion"
+            const val testJUnitExtKtx = "androidx.test.ext:junit-ktx:$testJUnitExtVersion"
 
             const val quickjs = "app.cash.quickjs:quickjs-android:$quickjsVersion"
         }
