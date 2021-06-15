@@ -7,7 +7,22 @@ import MultiPlatformLibrary
 
 class TestViewController: UIViewController {
     
+    @IBOutlet private var firstValueTextField: UITextField!
+    @IBOutlet private var secondValueTextField: UITextField!
+    @IBOutlet private var resultLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+    
+    @IBAction private func run() {
+        let result = Calculator().run(a: firstValueTextField.text ?? "", b: secondValueTextField.text ?? "")
+        if let value = (result as? JsType.Str)?.value {
+            resultLabel.text = value
+        }
+        
+        if let value = (result as? JsType.DoubleNum)?.value {
+            resultLabel.text = "\(value)"
+        }
     }
 }

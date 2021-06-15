@@ -9,6 +9,7 @@ plugins {
 
 dependencies {
     commonMainApi(Deps.Libs.MultiPlatform.coroutines)
+    commonMainApi(Deps.Libs.MultiPlatform.kotlinSerialization)
 
     commonMainApi(Deps.Libs.MultiPlatform.mokoJavascript)
 }
