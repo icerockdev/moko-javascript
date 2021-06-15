@@ -145,6 +145,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				English,
+				Base,
 			);
 			mainGroup = 287627F61F319065007FA12B;
 			productRefGroup = 287628001F319065007FA12B /* Products */;
@@ -270,6 +271,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4VU932NX78;
 				INFOPLIST_FILE = src/Info.plist;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.icerock.moko.sample.javascript;
 				PRODUCT_NAME = mokoSampleJavascript;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -288,6 +290,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4VU932NX78;
 				INFOPLIST_FILE = src/Info.plist;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.icerock.moko.sample.javascript;
 				PRODUCT_NAME = mokoSampleJavascript;
 				PROVISIONING_PROFILE_SPECIFIER = "";
