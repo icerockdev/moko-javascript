@@ -5,5 +5,15 @@
 package dev.icerock.moko.javascript
 
 expect class JavaScriptEngine() {
+    /**
+     * Evaluate some [script] with external [context].
+     *
+     * @throws JavaScriptEvaluationException in case of an error in the engine evaluation
+     */
     fun evaluate(context: Map<String, JsType>, script: String): JsType
+
+    /**
+     * Closes the engine and releases the allocated memory.
+     */
+    fun close()
 }

@@ -4,10 +4,17 @@
 
 package dev.icerock.moko.javascript
 
+import kotlinx.serialization.json.JsonElement
+
 sealed class JsType {
-    data class Boolean(val value: Boolean): JsType
-    data class String(val value: String): JsType
-    data class Int(val value: Int): JsType
-    data class Double(val value: Double): JsType
-    data class Json(val value: JsonElement): JsType
+    data class Bool(val value: Boolean): JsType()
+    data class Str(val value: String): JsType()
+    data class IntNum(val value: Int): JsType()
+    data class DoubleNum(val value: Double): JsType()
+    data class Json(val value: JsonElement): JsType()
+
+    /**
+     * For "undefined" and "null".
+     */
+    object Null : JsType()
 }
