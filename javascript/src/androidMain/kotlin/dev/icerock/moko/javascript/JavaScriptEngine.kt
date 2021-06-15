@@ -49,21 +49,20 @@ actual class JavaScriptEngine actual constructor(){
     }
 
     private fun handleQuickJsResult(result: Any?): JsType {
-        if (result is String) {
-            return try {
-                JsType.Json(json.encodeToJsonElement(result))
-            } catch (ex: SerializationException) {
-                JsType.Str(result)
-            }
-        }
-
         return when (result) {
             result == null -> JsType.Null
             is Boolean -> JsType.Bool(result)
             is Int -> JsType.IntNum(result)
             is Double -> JsType.DoubleNum(result)
             is Float -> JsType.DoubleNum(result.toDouble())
-            else -> throw IllegalStateException("Impossible JavaScriptEngine handler state")
+            is String -> try {
+                JsType.Json(json.encodeToJsonElement(result))
+            } catch (ex: SerializationException) {
+                JsType.Str(result)
+            }
+            else -> throw JavaScriptEvaluationException(
+                message = "Impossible JavaScriptEngine handler state with result [$result]"
+            )
         }
     }
 }

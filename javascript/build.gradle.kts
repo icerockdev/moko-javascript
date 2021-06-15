@@ -7,10 +7,24 @@ plugins {
     id("publication-convention")
 }
 
+android {
+    testOptions.unitTests.isIncludeAndroidResources = true
+    defaultConfig {
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+}
+
 dependencies {
     androidMainImplementation(Deps.Libs.Android.quickjs)
 
     commonMainImplementation(Deps.Libs.MultiPlatform.kotlinSerialization)
 
+    commonTestImplementation(Deps.Libs.MultiPlatform.kotlinTest)
+    commonTestImplementation(Deps.Libs.MultiPlatform.kotlinTestAnnotations)
     commonTestImplementation(Deps.Libs.MultiPlatform.mokoTest)
+
+    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation("androidx.test:rules:1.3.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.2")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.2")
 }
