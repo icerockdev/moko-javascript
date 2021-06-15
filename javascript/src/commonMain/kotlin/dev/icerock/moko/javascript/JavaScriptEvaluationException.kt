@@ -1,6 +1,10 @@
+/*
+ * Copyright 2021 IceRock MAG Inc. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package dev.icerock.moko.javascript
 
 class JavaScriptEvaluationException(
-    throwable: Throwable?,
+    cause: Throwable? = null,
     message: String? = null
-) : Exception(message, throwable)
+) : Exception(message, cause)
