@@ -12,6 +12,14 @@ android {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    packagingOptions {
+        exclude("META-INF/*.kotlin_module")
+        exclude("META-INF/*.kotlin_module")
+        exclude("META-INF/AL2.0")
+        exclude("META-INF/LGPL2.1")
+
+    }
 }
 
 dependencies {

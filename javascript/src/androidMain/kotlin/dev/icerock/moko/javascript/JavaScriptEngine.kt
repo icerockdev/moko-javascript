@@ -8,9 +8,9 @@ import app.cash.quickjs.QuickJs
 import app.cash.quickjs.QuickJsException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.JsonObject
 
-actual class JavaScriptEngine actual constructor(){
+actual class JavaScriptEngine actual constructor() {
     private val quickJs: QuickJs = QuickJs.create()
     private val json: Json = Json.Default
 
@@ -27,7 +27,7 @@ actual class JavaScriptEngine actual constructor(){
         return try {
             internalEvaluate(context, script)
         } catch (exception: QuickJsException) {
-            throw JavaScriptEvaluationException(exception)
+            throw JavaScriptEvaluationException(exception, exception.message)
         }
     }
 
@@ -41,22 +41,33 @@ actual class JavaScriptEngine actual constructor(){
         context: Map<String, JsType>,
         script: String
     ): JsType {
-        context.forEach { pair ->
-            quickJs.set(pair.key, pair.value.javaClass, pair.value)
-        }
-        val result = quickJs.evaluate(script)
+        val scriptWithContext = convertContextMapToJsScript(context) + script
+        val result = quickJs.evaluate(scriptWithContext)
         return handleQuickJsResult(result)
     }
 
+    private fun convertContextMapToJsScript(context: Map<String, JsType>): String {
+        if (context.isEmpty()) return ""
+
+        return context.mapNotNull { pair ->
+            pair.value.value?.let { "var ${pair.key} = $it;" }
+        }.joinToString(separator = "")
+    }
+
     private fun handleQuickJsResult(result: Any?): JsType {
-        return when (result) {
+        return when {
             result == null -> JsType.Null
-            is Boolean -> JsType.Bool(result)
-            is Int -> JsType.IntNum(result)
-            is Double -> JsType.DoubleNum(result)
-            is Float -> JsType.DoubleNum(result.toDouble())
-            is String -> try {
-                JsType.Json(json.encodeToJsonElement(result))
+            result is Boolean -> JsType.Bool(result)
+            result is Int -> JsType.IntNum(result)
+            result is Double -> JsType.DoubleNum(result)
+            result is Float -> JsType.DoubleNum(result.toDouble())
+            result is String -> try {
+                val serializeResult = json.parseToJsonElement(result)
+                if (serializeResult is JsonObject) {
+                    JsType.Json(serializeResult)
+                } else {
+                    JsType.Str(result)
+                }
             } catch (ex: SerializationException) {
                 JsType.Str(result)
             }

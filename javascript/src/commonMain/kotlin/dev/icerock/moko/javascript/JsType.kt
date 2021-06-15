@@ -19,6 +19,18 @@ sealed class JsType {
     object Null : JsType()
 }
 
+val JsType.value: Any?
+    get() {
+        return when (this) {
+            is JsType.Bool -> value
+            is JsType.Str -> value
+            is JsType.IntNum -> value
+            is JsType.DoubleNum -> value
+            is JsType.Json -> value.toString()
+            is JsType.Null -> null
+        }
+    }
+
 fun JsType.boolValue(): Boolean = (this as JsType.Bool).value
 fun JsType.stringValue(): String = (this as JsType.Str).value
 fun JsType.intValue(): Int = (this as JsType.IntNum).value
