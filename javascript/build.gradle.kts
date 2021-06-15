@@ -8,5 +8,9 @@ plugins {
 }
 
 dependencies {
+    androidMainImplementation(Deps.Libs.Android.quickjs)
+
+    commonMainImplementation(Deps.Libs.MultiPlatform.kotlinSerialization)
+
     commonTestImplementation(Deps.Libs.MultiPlatform.mokoTest)
 }
