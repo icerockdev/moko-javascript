@@ -18,3 +18,10 @@ sealed class JsType {
      */
     object Null : JsType()
 }
+
+fun JsType.boolValue(): Boolean = (this as JsType.Bool).value
+fun JsType.stringValue(): String = (this as JsType.Str).value
+fun JsType.intValue(): Int = (this as JsType.IntNum).value
+fun JsType.doubleValue(): Double = (this as JsType.DoubleNum).value
+fun JsType.jsonValue(): JsonElement = (this as JsType.Json).value
+fun JsType.nullValue(): Any? = (this as JsType.Null).let { null }
