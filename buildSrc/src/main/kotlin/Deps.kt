@@ -13,7 +13,7 @@ object Deps {
 
     private const val coroutinesVersion = "1.4.2"
     private const val kotlinxSerializationVersion = "1.1.0"
-    private const val mokoTestVersion = "0.2.0"
+    private const val mokoTestVersion = "0.3.0"
     const val mokoJavascriptVersion = "0.1.0"
 
     object Android {
@@ -37,7 +37,7 @@ object Deps {
             const val kotlinSerialization =
                 "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion"
 
-            const val mokoTest = "dev.icerock.moko:test:$mokoTestVersion"
+            const val mokoTest = "dev.icerock.moko:test-core:$mokoTestVersion"
             const val mokoJavascript = "dev.icerock.moko:javascript:$mokoJavascriptVersion"
         }
     }
