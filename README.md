@@ -1,7 +1,7 @@
-[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Download](https://api.bintray.com/packages/icerockdev/moko/moko-javascript/images/download.svg) ](https://bintray.com/icerockdev/moko/moko-javascript/_latestVersion) ![kotlin-version](https://img.shields.io/badge/kotlin-1.4.32-orange)
+[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Download](https://img.shields.io/maven-central/v/dev.icerock.moko/javascript) ](https://repo1.maven.org/maven2/dev/icerock/moko/javascript) ![kotlin-version](https://img.shields.io/badge/kotlin-1.4.32-orange)
 
 # Mobile Kotlin javascript
-This is a Kotlin MultiPlatform library that ...
+This is a Kotlin MultiPlatform library that allows you to run JavaScript code from common Kotlin code
 
 ## Table of Contents
 - [Features](#features)
@@ -14,7 +14,8 @@ This is a Kotlin MultiPlatform library that ...
 - [License](#license)
 
 ## Features
-...
+- Evaluate JavaScript code from Kotlin common code
+- Pass objects to JavaScript as global vars
 
 ## Requirements
 - Gradle version 6.0+
@@ -43,7 +44,16 @@ dependencies {
 ```
 
 ## Usage
-...
+```kotlin
+val javaScriptEngine = JavaScriptEngine()
+val result: JsType = javaScriptEngine.evaluate(
+  context = emptyMap(),
+  script = """ "Hello" + "World" """.trimIndent()
+)
+if (result is JsType.Str) {
+    println(result.value)
+}
+```
 
 ## Samples
 More examples can be found in the [sample directory](sample).
