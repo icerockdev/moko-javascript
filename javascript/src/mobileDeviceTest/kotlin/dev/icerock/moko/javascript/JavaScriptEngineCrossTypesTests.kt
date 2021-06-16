@@ -45,11 +45,6 @@ class JavaScriptEngineCrossTypesTests {
 
     @Test
     fun stringWithNumberSumCheck() {
-        // FIXME: Falls with exception
-        // Script: var list = [5,15];var number = 4;var doubleString = " Hello ";doubleString+list[0]
-        // Exception:
-        // IllegalStateException: Reader has not consumed the whole input:
-        // JsonReader(source=' Hello 5', currentPosition=8, tokenClass=0, tokenPosition=7, offset=7)
         assertEquals(
             actual = JsType.Str(" Hello 5"),
             expected = javaScriptEngine.evaluate(context = context, script = "doubleString+list[0]")
