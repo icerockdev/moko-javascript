@@ -12,13 +12,13 @@ class Calculator {
         val engine = JavaScriptEngine()
         val testScript = "a+b"
 
-        val intA = a.toIntOrNull()
-        val intB = b.toIntOrNull()
+        val numberA = a.toDoubleOrNull()
+        val numberB = b.toDoubleOrNull()
 
-        val context = if (intA != null && intB != null) {
+        val context = if (numberA != null && numberB != null) {
             mapOf(
-                "a" to JsType.IntNum(intA),
-                "b" to JsType.IntNum(intB)
+                "a" to JsType.DoubleNum(numberA),
+                "b" to JsType.DoubleNum(numberB)
             )
         } else {
             mapOf(
