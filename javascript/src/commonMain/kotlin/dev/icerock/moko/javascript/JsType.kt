@@ -7,33 +7,23 @@ package dev.icerock.moko.javascript
 import kotlinx.serialization.json.JsonElement
 
 sealed class JsType {
-    data class Bool(val value: Boolean): JsType()
-    data class Str(val value: String): JsType()
-    data class IntNum(val value: Int): JsType()
-    data class DoubleNum(val value: Double): JsType()
-    data class Json(val value: JsonElement): JsType()
+    data class Bool(override val value: Boolean) : JsType()
+    data class Str(override val value: String) : JsType()
+    data class DoubleNum(override val value: Double) : JsType()
+    data class Json(override val value: JsonElement) : JsType()
 
     /**
      * For "undefined" and "null".
      */
-    object Null : JsType()
-}
-
-val JsType.value: Any?
-    get() {
-        return when (this) {
-            is JsType.Bool -> value
-            is JsType.Str -> value
-            is JsType.IntNum -> value
-            is JsType.DoubleNum -> value
-            is JsType.Json -> value.toString()
-            is JsType.Null -> null
-        }
+    object Null : JsType() {
+        override val value: Any? get() = null
     }
+
+    abstract val value: Any?
+}
 
 fun JsType.boolValue(): Boolean = (this as JsType.Bool).value
 fun JsType.stringValue(): String = (this as JsType.Str).value
-fun JsType.intValue(): Int = (this as JsType.IntNum).value
 fun JsType.doubleValue(): Double = (this as JsType.DoubleNum).value
 fun JsType.jsonValue(): JsonElement = (this as JsType.Json).value
 fun JsType.nullValue(): Any? = (this as JsType.Null).let { null }

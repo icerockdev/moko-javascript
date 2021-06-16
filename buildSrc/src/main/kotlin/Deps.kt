@@ -30,6 +30,7 @@ object Deps {
             const val material = "com.google.android.material:material:$materialDesignVersion"
             const val lifecycle = "androidx.lifecycle:lifecycle-extensions:$androidLifecycleVersion"
 
+            const val kotlinTestJUnit = "org.jetbrains.kotlin:kotlin-test-junit:$kotlinTestVersion"
             const val testRunner = "androidx.test:runner:$androidCoreTestingVersion"
             const val testRules = "androidx.test:rules:$androidCoreTestingVersion"
             const val testJUnitExt = "androidx.test.ext:junit:$testJUnitExtVersion"

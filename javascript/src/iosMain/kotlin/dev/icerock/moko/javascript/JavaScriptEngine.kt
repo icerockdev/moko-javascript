@@ -33,7 +33,7 @@ actual class JavaScriptEngine actual constructor() {
 
         context.forEach {
             jsContext.setObject(
-                `object` = it.value.getValue(),
+                `object` = prepareValueForJsContext(it.value),
                 forKeyedSubscript = NSString.create(string = it.key)
             )
         }
@@ -45,6 +45,11 @@ actual class JavaScriptEngine actual constructor() {
 
     actual fun close() {
         // Nothing to do here
+    }
+
+    private fun prepareValueForJsContext(valueWrapper: JsType): Any? {
+        return if (valueWrapper is JsType.Json) valueWrapper.value.getValue()
+        else valueWrapper.value
     }
 }
 
@@ -72,17 +77,6 @@ private fun JsonElement.getValue(): Any? {
     return (this as? JsonObject)?.toNSDictionary()
         ?: (this as? JsonArray)?.toNSArray()
         ?: (this as? JsonPrimitive)?.content
-}
-
-private fun JsType.getValue(): Any? {
-    return when (this) {
-        is JsType.Bool -> value
-        is JsType.Str -> value
-        is JsType.IntNum -> value
-        is JsType.DoubleNum -> value
-        is JsType.Json -> value.getValue()
-        is JsType.Null -> null
-    }
 }
 
 private fun JSValue.toMokoJSType(): JsType {

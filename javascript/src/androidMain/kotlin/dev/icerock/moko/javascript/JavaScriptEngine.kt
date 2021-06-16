@@ -7,7 +7,9 @@ package dev.icerock.moko.javascript
 import app.cash.quickjs.QuickJs
 import app.cash.quickjs.QuickJsException
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 actual class JavaScriptEngine actual constructor() {
@@ -46,22 +48,39 @@ actual class JavaScriptEngine actual constructor() {
         return handleQuickJsResult(result)
     }
 
+    // TODO fix pass of arguments - now wrapping of string and json invalid and will be broken on multilined strings
     private fun convertContextMapToJsScript(context: Map<String, JsType>): String {
         if (context.isEmpty()) return ""
 
         return context.mapNotNull { pair ->
-            pair.value.value?.let { "var ${pair.key} = $it;" }
+            prepareValueForJs(pair.value)?.let { "var ${pair.key} = $it;" }
         }.joinToString(separator = "")
     }
 
+    private fun prepareValueForJs(valueWrapper: JsType): String? {
+        return when (valueWrapper) {
+            is JsType.Bool -> valueWrapper.value.toString()
+            is JsType.DoubleNum -> valueWrapper.value.toString()
+            is JsType.Json -> valueWrapper.value.let {
+                Json.encodeToString(JsonElement.serializer(), it)
+            }.let {
+                "JSON.parse(\"$it\")"
+            }
+            is JsType.Str -> valueWrapper.value.let {
+                "\"$it\""
+            }
+            JsType.Null -> null
+        }
+    }
+
     private fun handleQuickJsResult(result: Any?): JsType {
-        return when {
-            result == null -> JsType.Null
-            result is Boolean -> JsType.Bool(result)
-            result is Int -> JsType.IntNum(result)
-            result is Double -> JsType.DoubleNum(result)
-            result is Float -> JsType.DoubleNum(result.toDouble())
-            result is String -> try {
+        return when (result) {
+            null -> JsType.Null
+            is Boolean -> JsType.Bool(result)
+            is Int -> JsType.DoubleNum(result.toDouble())
+            is Double -> JsType.DoubleNum(result)
+            is Float -> JsType.DoubleNum(result.toDouble())
+            is String -> try {
                 val serializeResult = json.parseToJsonElement(result)
                 if (serializeResult is JsonObject) {
                     JsType.Json(serializeResult)
@@ -69,6 +88,8 @@ actual class JavaScriptEngine actual constructor() {
                     JsType.Str(result)
                 }
             } catch (ex: SerializationException) {
+                JsType.Str(result)
+            } catch (ex: IllegalStateException) {
                 JsType.Str(result)
             }
             else -> throw JavaScriptEvaluationException(

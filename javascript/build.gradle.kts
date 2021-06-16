@@ -18,7 +18,20 @@ android {
         exclude("META-INF/*.kotlin_module")
         exclude("META-INF/AL2.0")
         exclude("META-INF/LGPL2.1")
+    }
+}
 
+kotlin {
+    sourceSets {
+        val mobileDeviceTest by creating
+
+        val commonTest by getting
+        val iosTest by getting
+        val androidAndroidTest by getting
+
+        mobileDeviceTest.dependsOn(commonTest)
+        iosTest.dependsOn(mobileDeviceTest)
+        androidAndroidTest.dependsOn(mobileDeviceTest)
     }
 }
 
@@ -31,6 +44,7 @@ dependencies {
     commonTestImplementation(Deps.Libs.MultiPlatform.kotlinTestAnnotations)
     commonTestImplementation(Deps.Libs.MultiPlatform.mokoTest)
 
+    androidTestImplementation(Deps.Libs.Android.kotlinTestJUnit)
     androidTestImplementation(Deps.Libs.Android.testRunner)
     androidTestImplementation(Deps.Libs.Android.testRules)
     androidTestImplementation(Deps.Libs.Android.testJUnitExt)
