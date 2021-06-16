@@ -19,6 +19,13 @@ android {
         exclude("META-INF/AL2.0")
         exclude("META-INF/LGPL2.1")
     }
+
+    sourceSets {
+        getByName("androidTest").java.srcDirs(
+            file("src/androidAndroidTest/kotlin"),
+            file("src/mobileDeviceTest/kotlin")
+        )
+    }
 }
 
 kotlin {

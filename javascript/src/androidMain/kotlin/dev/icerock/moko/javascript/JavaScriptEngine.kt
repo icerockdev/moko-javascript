@@ -43,7 +43,7 @@ actual class JavaScriptEngine actual constructor() {
         context: Map<String, JsType>,
         script: String
     ): JsType {
-        val scriptWithContext = convertContextMapToJsScript(context) + script
+        val scriptWithContext = convertContextMapToJsScript(context) + script + "\n"
         val result = quickJs.evaluate(scriptWithContext)
         return handleQuickJsResult(result)
     }
@@ -64,9 +64,13 @@ actual class JavaScriptEngine actual constructor() {
             is JsType.Json -> valueWrapper.value.let {
                 Json.encodeToString(JsonElement.serializer(), it)
             }.let {
+                it.replace("\"", "\\\"")
+            }.let {
                 "JSON.parse(\"$it\")"
             }
             is JsType.Str -> valueWrapper.value.let {
+                it.replace("\"", "\\\"")
+            }.let {
                 "\"$it\""
             }
             JsType.Null -> null
