@@ -46,10 +46,15 @@ dependencies {
 ## Usage
 ```kotlin
 val javaScriptEngine = JavaScriptEngine()
-val result: JsType = javaScriptEngine.evaluate(
-  context = emptyMap(),
-  script = """ "Hello" + "World" """.trimIndent()
-)
+val result: JsType = try {
+  javaScriptEngine.evaluate(
+    context = emptyMap(),
+    script = """ "Hello" + "World" """.trimIndent()
+  )
+} catch (ex: JavaScriptEvaluationException) {
+  // Handle script evaluation error
+  JsType.Null
+}
 if (result is JsType.Str) {
     println(result.value)
 }
