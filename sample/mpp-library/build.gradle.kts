@@ -3,17 +3,26 @@
  */
 
 plugins {
-    id("mpp-library-convention")
+    id("com.android.library")
+    id("android-base-convention")
+    id("detekt-convention")
+    id("org.jetbrains.kotlin.multiplatform")
+    id("dev.icerock.mobile.multiplatform.android-manifest")
     id("dev.icerock.mobile.multiplatform.ios-framework")
 }
 
-dependencies {
-    commonMainApi(Deps.Libs.MultiPlatform.coroutines)
-    commonMainApi(Deps.Libs.MultiPlatform.kotlinSerialization)
+kotlin {
+    android()
+    ios()
+}
 
-    commonMainApi(Deps.Libs.MultiPlatform.mokoJavascript)
+dependencies {
+    commonMainApi(libs.coroutines)
+    commonMainApi(libs.kotlinSerialization)
+
+    commonMainApi(projects.javascript)
 }
 
 framework {
-    export(project(":javascript"))
+    export(projects.javascript)
 }

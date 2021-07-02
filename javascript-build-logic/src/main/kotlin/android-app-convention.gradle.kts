@@ -1,6 +1,11 @@
+/*
+ * Copyright 2021 IceRock MAG Inc. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 plugins {
     id("com.android.application")
     id("android-base-convention")
+    id("kotlin-android")
 }
 
 android {
@@ -8,11 +13,9 @@ android {
         javaMaxHeapSize = "2g"
     }
 
-    defaultConfig.vectorDrawables.useSupportLibrary = true
-
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
         getByName("debug") {
@@ -23,5 +26,7 @@ android {
 
     packagingOptions {
         exclude("META-INF/*.kotlin_module")
+        exclude("META-INF/AL2.0")
+        exclude("META-INF/LGPL2.1")
     }
 }

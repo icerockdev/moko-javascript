@@ -1,0 +1,31 @@
+[versions]
+kotlinTestVersion = "1.5.20"
+androidAppCompatVersion = "1.2.0"
+materialDesignVersion = "1.0.0"
+androidLifecycleVersion = "2.1.0"
+androidCoreTestingVersion = "1.3.0"
+testJUnitExtVersion = "1.1.2"
+quickjsVersion = "0.9.0"
+coroutinesVersion = "1.5.0-native-mt"
+kotlinxSerializationVersion = "1.1.0"
+mokoTestVersion = "0.4.0"
+mokoJavascriptVersion = "0.2.0"
+
+
+[libraries]
+appCompat = { module = "androidx.appcompat:appcompat", version.ref = "androidAppCompatVersion" }
+material = { module = "com.google.android.material:material", version.ref = "materialDesignVersion" }
+lifecycle = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "androidLifecycleVersion" }
+kotlinTestJUnit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlinTestVersion" }
+testRunner = { module = "androidx.test:runner", version.ref = "androidCoreTestingVersion" }
+testRules = { module = "androidx.test:rules", version.ref = "androidCoreTestingVersion" }
+testJUnitExt = { module = "androidx.test.ext:junit", version.ref = "testJUnitExtVersion" }
+testJUnitExtKtx = { module = "androidx.test.ext:junit-ktx", version.ref = "testJUnitExtVersion" }
+quickjs = { module = "app.cash.quickjs:quickjs-android", version.ref = "quickjsVersion" }
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutinesVersion" }
+kotlinSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationVersion" }
+kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlinTestVersion" }
+kotlinTestAnnotations =  { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlinTestVersion" }
+mokoTest = { module = "dev.icerock.moko:test-core", version.ref = "mokoTestVersion" }
+mokoTestRobolectric = { module = "dev.icerock.moko:test-roboelectric", version.ref = "mokoTestVersion" }
+mokoJavascript = { module = "dev.icerock.moko:javascript", version.ref = "mokoJavascriptVersion" }

@@ -4,7 +4,7 @@
 
 plugins {
     id("android-app-convention")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
 }
 
 android {
@@ -17,8 +17,8 @@ android {
 }
 
 dependencies {
-    implementation(Deps.Libs.Android.appCompat)
-    implementation(Deps.Libs.Android.material)
+    implementation(libs.appCompat)
+    implementation(libs.material)
 
-    implementation(project(":sample:mpp-library"))
+    implementation(projects.sample.mppLibrary)
 }
