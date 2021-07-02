@@ -8,10 +8,6 @@ plugins {
     id("publication-convention")
 }
 
-
-
-
-
 dependencies {
     androidMainImplementation(libs.quickjs)
     commonMainImplementation(libs.kotlinSerialization)
