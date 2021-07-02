@@ -1,4 +1,4 @@
-[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Download](https://img.shields.io/maven-central/v/dev.icerock.moko/javascript) ](https://repo1.maven.org/maven2/dev/icerock/moko/javascript) ![kotlin-version](https://img.shields.io/badge/kotlin-1.4.32-orange)
+[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Download](https://img.shields.io/maven-central/v/dev.icerock.moko/javascript) ](https://repo1.maven.org/maven2/dev/icerock/moko/javascript) ![kotlin-version](https://kotlin-version.aws.icerock.dev/kotlin-version?group=dev.icerock.moko&name=javascript)
 
 # Mobile Kotlin javascript
 This is a Kotlin MultiPlatform library that allows you to run JavaScript code from common Kotlin code
@@ -22,10 +22,6 @@ This is a Kotlin MultiPlatform library that allows you to run JavaScript code fr
 - Android API 16+
 - iOS version 9.0+
 
-## Versions
-- kotlin 1.4.32
-  - 0.1.0
-
 ## Installation
 root build.gradle  
 ```groovy
@@ -39,17 +35,22 @@ allprojects {
 project build.gradle
 ```groovy
 dependencies {
-    commonMainApi("dev.icerock.moko:javascript:0.1.0")
+    commonMainApi("dev.icerock.moko:javascript:0.2.0")
 }
 ```
 
 ## Usage
 ```kotlin
 val javaScriptEngine = JavaScriptEngine()
-val result: JsType = javaScriptEngine.evaluate(
-  context = emptyMap(),
-  script = """ "Hello" + "World" """.trimIndent()
-)
+val result: JsType = try {
+  javaScriptEngine.evaluate(
+    context = emptyMap(),
+    script = """ "Hello" + "World" """.trimIndent()
+  )
+} catch (ex: JavaScriptEvaluationException) {
+  // Handle script evaluation error
+  JsType.Null
+}
 if (result is JsType.Str) {
     println(result.value)
 }
