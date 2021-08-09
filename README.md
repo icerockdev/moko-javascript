@@ -1,3 +1,4 @@
+![moko-javascript](https://user-images.githubusercontent.com/5010169/128704305-df9c8e9e-200c-4d34-801e-a5b01c80f0cb.png)  
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Download](https://img.shields.io/maven-central/v/dev.icerock.moko/javascript) ](https://repo1.maven.org/maven2/dev/icerock/moko/javascript) ![kotlin-version](https://kotlin-version.aws.icerock.dev/kotlin-version?group=dev.icerock.moko&name=javascript)
 
 # Mobile Kotlin javascript
