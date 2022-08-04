@@ -11,6 +11,7 @@ sealed class JsType {
     data class Str(override val value: String) : JsType()
     data class DoubleNum(override val value: Double) : JsType()
     data class Json(override val value: JsonElement) : JsType()
+    data class AnyValue(override val value: Any) : JsType()
 
     /**
      * For "undefined" and "null".

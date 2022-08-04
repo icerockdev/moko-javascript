@@ -22,20 +22,23 @@ import platform.JavaScriptCore.JSValue
 import platform.JavaScriptCore.setObject
 
 actual class JavaScriptEngine actual constructor() {
-    actual fun evaluate(context: Map<String, JsType>, script: String): JsType {
 
-        val jsContext = JSContext()
+    private val jsContext = JSContext()
 
-        jsContext.exceptionHandler = { exceptionContext, exception ->
-            val message = "\"context = $exceptionContext, exception = $exception\""
-            throw JavaScriptEvaluationException(cause = null, message = message)
-        }
-
+    actual fun setContextObjects(context: Map<String, JsType>) {
         context.forEach {
             jsContext.setObject(
                 `object` = prepareValueForJsContext(it.value),
                 forKeyedSubscript = NSString.create(string = it.key)
             )
+        }
+    }
+
+    actual fun evaluate(script: String): JsType {
+
+        jsContext.exceptionHandler = { exceptionContext, exception ->
+            val message = "\"context = $exceptionContext, exception = $exception\""
+            throw JavaScriptEvaluationException(cause = null, message = message)
         }
 
         val result = jsContext.evaluateScript(script)
@@ -45,6 +48,16 @@ actual class JavaScriptEngine actual constructor() {
 
     actual fun close() {
         // Nothing to do here
+    }
+
+    actual fun objectToJsonString(value: JsType): String? {
+        val localContext = JSContext()
+        localContext.setObject(
+            `object` = prepareValueForJsContext(value),
+            forKeyedSubscript = NSString.create(string = "objectValue")
+        )
+
+        return localContext.evaluateScript("JSON.stringify(objectValue);")?.toString_()
     }
 
     private fun prepareValueForJsContext(valueWrapper: JsType): Any? {
@@ -84,10 +97,9 @@ private fun JSValue.toMokoJSType(): JsType {
         isBoolean -> JsType.Bool(toBool())
         isString -> JsType.Str(toString_().orEmpty())
         isNumber -> JsType.DoubleNum(toDouble())
-        isObject -> JsType.Json(Json.encodeToJsonElement(toDictionary()))
+        isObject -> JsType.AnyValue(toObject()!!)
         isArray -> JsType.Json(Json.encodeToJsonElement(toArray()))
-        isUndefined -> JsType.Null
         isNull -> JsType.Null
-        else -> JsType.Null
+        else -> JsType.AnyValue(this)
     }
 }

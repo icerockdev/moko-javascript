@@ -16,14 +16,16 @@ actual class JavaScriptEngine actual constructor() {
     private val quickJs: QuickJs = QuickJs.create()
     private val json: Json = Json.Default
 
+    private var context: Map<String, JsType> = mapOf()
+    actual fun setContextObjects(context: Map<String, JsType>) {
+        this.context = context
+    }
+
     @Volatile
     var isClosed = false
         private set
 
-    actual fun evaluate(
-        context: Map<String, JsType>,
-        script: String
-    ): JsType {
+    actual fun evaluate(script: String): JsType {
         if (isClosed) throw JavaScriptEvaluationException(message = "Engine already closed")
 
         return try {
@@ -37,6 +39,12 @@ actual class JavaScriptEngine actual constructor() {
         if (isClosed) return
         quickJs.close()
         isClosed = true
+    }
+
+    actual fun objectToJsonString(value: JsType): String? {
+        val script = "JSON.stringify(objectValue);"
+        val scriptWithContext = convertContextMapToJsScript(mapOf("objectValue" to value)) + script + "\n"
+        return quickJs.evaluate(scriptWithContext) as String
     }
 
     private fun internalEvaluate(
@@ -74,6 +82,7 @@ actual class JavaScriptEngine actual constructor() {
                 "\"$it\""
             }
             JsType.Null -> null
+            is JsType.AnyValue -> null
         }
     }
 
