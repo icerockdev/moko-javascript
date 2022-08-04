@@ -7,12 +7,15 @@ package dev.icerock.moko.javascript
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.encodeToJsonElement
 import platform.Foundation.NSArray
 import platform.Foundation.NSDictionary
 import platform.Foundation.NSJSONSerialization
+import platform.Foundation.NSNull
+import platform.Foundation.NSNumber
 import platform.Foundation.NSString
 import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.create
@@ -23,25 +26,43 @@ import platform.JavaScriptCore.setObject
 
 actual class JavaScriptEngine actual constructor() {
 
-    private val jsContext = JSContext()
+    private val jsContext = JSContext().apply {
+        exceptionHandler = { exceptionContext, exception ->
+            val message = "\"context = $exceptionContext, exception = $exception\""
+            throw JavaScriptEvaluationException(cause = null, message = message)
+        }
+    }
 
-    actual fun setContextObjects(context: Map<String, JsType>) {
-        context.forEach {
+    actual fun setContextObjects(vararg context: Pair<String, Any>) {
+        context.forEach { (key, value) ->
+            val contextObject = if (value is JsType) {
+                prepareValueForJsContext(value)
+            } else {
+                value
+            }
             jsContext.setObject(
-                `object` = prepareValueForJsContext(it.value),
-                forKeyedSubscript = NSString.create(string = it.key)
+                `object` = contextObject,
+                forKeyedSubscript = NSString.create(string = key)
             )
         }
     }
 
-    actual fun evaluate(script: String): JsType {
-
-        jsContext.exceptionHandler = { exceptionContext, exception ->
-            val message = "\"context = $exceptionContext, exception = $exception\""
-            throw JavaScriptEvaluationException(cause = null, message = message)
+    actual fun evaluate(context: Map<String, JsType>, script: String): JsType {
+        context.forEach { (key, value) ->
+            jsContext.setObject(
+                `object` = prepareValueForJsContext(value),
+                forKeyedSubscript = NSString.create(string = key)
+            )
         }
 
         val result = jsContext.evaluateScript(script)
+
+        context.forEach { (key, _) ->
+            jsContext.setObject(
+                `object` = null,
+                forKeyedSubscript = NSString.create(string = key)
+            )
+        }
 
         return result?.toMokoJSType() ?: JsType.Null
     }
@@ -50,15 +71,15 @@ actual class JavaScriptEngine actual constructor() {
         // Nothing to do here
     }
 
-    actual fun objectToJsonString(value: JsType): String? {
-        val localContext = JSContext()
-        localContext.setObject(
-            `object` = prepareValueForJsContext(value),
-            forKeyedSubscript = NSString.create(string = "objectValue")
-        )
-
-        return localContext.evaluateScript("JSON.stringify(objectValue);")?.toString_()
-    }
+//    actual fun objectToJsonString(value: JsType): String? {
+//        val localContext = JSContext()
+//        localContext.setObject(
+//            `object` = prepareValueForJsContext(value),
+//            forKeyedSubscript = NSString.create(string = "objectValue")
+//        )
+//
+//        return localContext.evaluateScript("JSON.stringify(objectValue);")?.toString_()
+//    }
 
     private fun prepareValueForJsContext(valueWrapper: JsType): Any? {
         return if (valueWrapper is JsType.Json) valueWrapper.value.getValue()
@@ -97,9 +118,34 @@ private fun JSValue.toMokoJSType(): JsType {
         isBoolean -> JsType.Bool(toBool())
         isString -> JsType.Str(toString_().orEmpty())
         isNumber -> JsType.DoubleNum(toDouble())
-        isObject -> JsType.AnyValue(toObject()!!)
-        isArray -> JsType.Json(Json.encodeToJsonElement(toArray()))
+        isObject -> this.toDictionary()!!
+            .toJson()
+            .let { JsType.Json(it) }
+        isArray -> this.toArray()!!
+            .map { it.toJsonElement() }
+            .let { JsType.Json(JsonArray(it)) }
         isNull -> JsType.Null
-        else -> JsType.AnyValue(this)
+        else -> throw IllegalArgumentException("unknown JSValue type $this")
+    }
+}
+
+private fun Map<Any?, *>.toJson(): JsonObject {
+    return this.mapKeys { it.key as String
+    }.mapValues { it.value.toJsonElement() }
+        .let { JsonObject(it) }
+}
+
+/**
+ * @see https://developer.apple.com/documentation/javascriptcore/jsvalue?language=objc#1663421
+ */
+private fun Any?.toJsonElement(): JsonElement {
+    return when(this) {
+        null -> JsonNull
+        is NSNull -> JsonNull
+        is NSString -> JsonPrimitive(this as String)
+        is NSNumber -> JsonPrimitive(this.doubleValue)
+        is NSDictionary -> (this as Map<Any?, *>).toJson()
+        is NSArray -> (this as List<*>).map { it.toJsonElement() }.let { JsonArray(it) }
+        else -> throw IllegalArgumentException("unknown JSValue type $this")
     }
 }

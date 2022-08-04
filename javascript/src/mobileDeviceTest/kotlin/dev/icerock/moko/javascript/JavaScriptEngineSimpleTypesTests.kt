@@ -4,10 +4,12 @@
 
 package dev.icerock.moko.javascript
 
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -82,18 +84,32 @@ class JavaScriptEngineSimpleTypesTests {
         )
     }
 
-    @Ignore // on iOS we got StrValue, on Android - JsonValue
+    //    @Ignore // on iOS we got StrValue, on Android - JsonValue
     @Test
     fun jsonReadCheck() {
-        assertTrue {
-            javaScriptEngine.evaluate(
-                context = emptyMap(),
-                script = """
+        val jsonObject: JsonElement = javaScriptEngine.evaluate(
+            context = mapOf(
+                "test" to JsType.Json(
+                    JsonObject(
+                        mapOf(
+                            "te" to JsonArray(
+                                listOf(JsonPrimitive("tetete"))
+                            )
+                        )
+                    )
+                )
+            ),
+            script = """
                     var obj = {male:"Ford", model:"Mustang", number:10};
-                    JSON.stringify(obj);
+                    Object.assign(obj, test);
+                    obj
                 """.trimIndent()
-            ).jsonValue() is JsonObject
-        }
+        ).jsonValue()
+        assertTrue { jsonObject is JsonObject }
+        assertEquals(
+            expected = """{"number":10.0,"model":"Mustang","te":["tetete"],"male":"Ford"}""",
+            actual = jsonObject.toString()
+        )
     }
 
     @Test

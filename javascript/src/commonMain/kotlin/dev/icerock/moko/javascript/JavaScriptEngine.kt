@@ -11,17 +11,17 @@ expect class JavaScriptEngine() {
      * @throws JavaScriptEvaluationException in case of an error in the engine evaluation or if the
      * engine has already been closed.
      */
-    fun evaluate(script: String): JsType
+    fun evaluate(context: Map<String, JsType>, script: String): JsType
 
     /**
      * Set some [context] with external [context].
      */
-    fun setContextObjects(context: Map<String, JsType>)
+    fun setContextObjects(vararg context: Pair<String, Any>)
 
     /**
      * Turns some [JsType] to JsonString.
      */
-    fun objectToJsonString(value: JsType): String?
+//    fun objectToJsonString(value: JsType): String?
 
     /**
      * Closes the engine and releases the allocated memory.
