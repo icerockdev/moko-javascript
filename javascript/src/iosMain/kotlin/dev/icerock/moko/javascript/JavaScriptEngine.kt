@@ -4,13 +4,11 @@
 
 package dev.icerock.moko.javascript
 
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.encodeToJsonElement
 import platform.Foundation.NSArray
 import platform.Foundation.NSDictionary
 import platform.Foundation.NSJSONSerialization
@@ -124,7 +122,7 @@ private fun JSValue.toMokoJSType(): JsType {
         isArray -> this.toArray()!!
             .map { it.toJsonElement() }
             .let { JsType.Json(JsonArray(it)) }
-        isNull -> JsType.Null
+        isNull || isUndefined -> JsType.Null
         else -> throw IllegalArgumentException("unknown JSValue type $this")
     }
 }
