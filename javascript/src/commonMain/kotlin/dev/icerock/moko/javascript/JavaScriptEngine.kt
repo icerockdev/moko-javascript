@@ -19,14 +19,8 @@ expect class JavaScriptEngine() {
     fun setContextObjects(vararg context: Pair<String, Any>)
 
     /**
-     * Turns some [JsType] to JsonString.
-     */
-//    fun objectToJsonString(value: JsType): String?
-
-    /**
      * Closes the engine and releases the allocated memory.
      */
     fun close()
-
 
 }

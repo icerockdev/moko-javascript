@@ -41,12 +41,6 @@ actual class JavaScriptEngine actual constructor() {
         isClosed = true
     }
 
-//    actual fun objectToJsonString(value: JsType): String? {
-//        val script = "JSON.stringify(objectValue);"
-//        val scriptWithContext = convertContextMapToJsScript(mapOf("objectValue" to value)) + script + "\n"
-//        return quickJs.evaluate(scriptWithContext) as String
-//    }
-
     private fun internalEvaluate(
         context: Map<String, JsType>,
         script: String
