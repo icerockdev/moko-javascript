@@ -5,15 +5,15 @@
 package dev.icerock.moko.javascript
 
 import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class JavaScriptEngineSimpleTypesTests {
     private lateinit var javaScriptEngine: JavaScriptEngine
@@ -84,10 +84,9 @@ class JavaScriptEngineSimpleTypesTests {
         )
     }
 
-    //    @Ignore // on iOS we got StrValue, on Android - JsonValue
     @Test
     fun jsonReadCheck() {
-        val jsonObject: JsonElement = javaScriptEngine.evaluate(
+        val result: JsType = javaScriptEngine.evaluate(
             context = mapOf(
                 "test" to JsType.Json(
                     JsonObject(
@@ -100,15 +99,22 @@ class JavaScriptEngineSimpleTypesTests {
                 )
             ),
             script = """
-                    var obj = {male:"Ford", model:"Mustang", number:10};
-                    Object.assign(obj, test);
-                    obj
+                    var object = {male:"Ford", model:"Mustang", number:10.1};
+                    Object.assign(object, test);
+                    object;
                 """.trimIndent()
-        ).jsonValue()
-        assertTrue { jsonObject is JsonObject }
+        )
+        assertIs<JsType.Json>(result)
         assertEquals(
-            expected = """{"number":10.0,"model":"Mustang","te":["tetete"],"male":"Ford"}""",
-            actual = jsonObject.toString()
+            expected = JsonObject(
+                mapOf(
+                    "number" to JsonPrimitive(10.1),
+                    "model" to JsonPrimitive("Mustang"),
+                    "te" to JsonArray(listOf(JsonPrimitive("tetete"))),
+                    "male" to JsonPrimitive("Ford")
+                )
+            ).entries,
+            actual = result.value.jsonObject.entries
         )
     }
 

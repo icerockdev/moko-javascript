@@ -16,7 +16,7 @@ expect class JavaScriptEngine() {
     /**
      * Set some [context] with external [context].
      */
-    fun setContextObjects(vararg context: Pair<String, Any>)
+    fun setContextObjects(vararg context: Pair<String, JsType>)
 
     /**
      * Closes the engine and releases the allocated memory.

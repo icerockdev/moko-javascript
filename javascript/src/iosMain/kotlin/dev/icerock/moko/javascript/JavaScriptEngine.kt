@@ -31,13 +31,9 @@ actual class JavaScriptEngine actual constructor() {
         }
     }
 
-    actual fun setContextObjects(vararg context: Pair<String, Any>) {
+    actual fun setContextObjects(vararg context: Pair<String, JsType>) {
         context.forEach { (key, value) ->
-            val contextObject = if (value is JsType) {
-                prepareValueForJsContext(value)
-            } else {
-                value
-            }
+            val contextObject: Any? = prepareValueForJsContext(value)
             jsContext.setObject(
                 `object` = contextObject,
                 forKeyedSubscript = NSString.create(string = key)
@@ -128,7 +124,8 @@ private fun JSValue.toMokoJSType(): JsType {
 }
 
 private fun Map<Any?, *>.toJson(): JsonObject {
-    return this.mapKeys { it.key as String
+    return this.mapKeys {
+        it.key as String
     }.mapValues { it.value.toJsonElement() }
         .let { JsonObject(it) }
 }
@@ -137,7 +134,7 @@ private fun Map<Any?, *>.toJson(): JsonObject {
  * @see https://developer.apple.com/documentation/javascriptcore/jsvalue?language=objc#1663421
  */
 private fun Any?.toJsonElement(): JsonElement {
-    return when(this) {
+    return when (this) {
         null -> JsonNull
         is NSNull -> JsonNull
         is NSString -> JsonPrimitive(this as String)

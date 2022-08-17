@@ -7,8 +7,8 @@ package dev.icerock.moko.javascript
 import app.cash.quickjs.QuickJs
 import app.cash.quickjs.QuickJsException
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
@@ -16,14 +16,15 @@ actual class JavaScriptEngine actual constructor() {
     private val quickJs: QuickJs = QuickJs.create()
     private val json: Json = Json.Default
 
-    private var context: Map<String, JsType> = mapOf()
-    actual fun setContextObjects(vararg context: Pair<String, Any>) {
-//        this.context = context
-    }
+    private var contextObjects: Map<String, JsType> = emptyMap()
 
     @Volatile
     var isClosed = false
         private set
+
+    actual fun setContextObjects(vararg context: Pair<String, JsType>) {
+        this.contextObjects = mapOf(*context)
+    }
 
     actual fun evaluate(context: Map<String, JsType>, script: String): JsType {
         if (isClosed) throw JavaScriptEvaluationException(message = "Engine already closed")
@@ -45,38 +46,37 @@ actual class JavaScriptEngine actual constructor() {
         context: Map<String, JsType>,
         script: String
     ): JsType {
-        val scriptWithContext = convertContextMapToJsScript(context) + script + "\n"
-        val result = quickJs.evaluate(scriptWithContext)
-        return handleQuickJsResult(result)
-    }
+        val scriptContext: Map<String, JsType> = contextObjects + context
+        val jsContext: ContextProvider = ContextProviderImpl(
+            context = scriptContext,
+            script = script
+        )
+        quickJs.set("mokoJsContext", ContextProvider::class.java, jsContext)
 
-    // TODO fix pass of arguments - now wrapping of string and json invalid and will be broken on multilined strings
-    private fun convertContextMapToJsScript(context: Map<String, JsType>): String {
-        if (context.isEmpty()) return ""
-
-        return context.mapNotNull { pair ->
-            prepareValueForJs(pair.value)?.let { "var ${pair.key} = $it;" }
-        }.joinToString(separator = "")
-    }
-
-    private fun prepareValueForJs(valueWrapper: JsType): String? {
-        return when (valueWrapper) {
-            is JsType.Bool -> valueWrapper.value.toString()
-            is JsType.DoubleNum -> valueWrapper.value.toString()
-            is JsType.Json -> valueWrapper.value.let {
-                Json.encodeToString(JsonElement.serializer(), it)
-            }.let {
-                it.replace("\"", "\\\"")
-            }.let {
-                "JSON.parse(\"$it\")"
+        val scriptWithContext: String = buildString {
+            scriptContext.forEach { (name, jsType) ->
+                append("const ")
+                append(name)
+                append(" = ")
+                append(
+                    when (jsType) {
+                        is JsType.Bool -> "mokoJsContext.getBool('$name')"
+                        is JsType.DoubleNum -> "mokoJsContext.getDouble('$name')"
+                        is JsType.Json -> "JSON.parse(mokoJsContext.getString('$name'))"
+                        JsType.Null -> "null"
+                        is JsType.Str -> "mokoJsContext.getString('$name')"
+                    }
+                )
+                append(";\n")
             }
-            is JsType.Str -> valueWrapper.value.let {
-                it.replace("\"", "\\\"")
-            }.let {
-                "\"$it\""
-            }
-            JsType.Null -> null
+            append("const script = mokoJsContext.getScript();\n")
+            append("const result = eval(script);\n")
+            append("if (typeof result === 'object') JSON.stringify(result);\n")
+            append("else if (typeof result === 'array') JSON.stringify(result);\n")
+            append("else result;")
         }
+        val result: Any? = quickJs.evaluate(scriptWithContext)
+        return handleQuickJsResult(result)
     }
 
     private fun handleQuickJsResult(result: Any?): JsType {
@@ -87,12 +87,9 @@ actual class JavaScriptEngine actual constructor() {
             is Double -> JsType.DoubleNum(result)
             is Float -> JsType.DoubleNum(result.toDouble())
             is String -> try {
-                val serializeResult = json.parseToJsonElement(result)
-                if (serializeResult is JsonObject) {
-                    JsType.Json(serializeResult)
-                } else {
-                    JsType.Str(result)
-                }
+                val jsonElement: JsonElement = json.parseToJsonElement(result)
+                if (jsonElement is JsonObject || jsonElement is JsonArray) JsType.Json(jsonElement)
+                else JsType.Str(result)
             } catch (ex: SerializationException) {
                 JsType.Str(result)
             } catch (ex: IllegalStateException) {
@@ -102,5 +99,40 @@ actual class JavaScriptEngine actual constructor() {
                 message = "Impossible JavaScriptEngine handler state with result [$result]"
             )
         }
+    }
+}
+
+private interface ContextProvider {
+    fun getBool(name: String): Boolean
+    fun getDouble(name: String): Double
+
+    fun getString(name: String): String
+
+    fun getScript(): String
+}
+
+private class ContextProviderImpl(
+    private val context: Map<String, JsType>,
+    private val script: String
+) : ContextProvider {
+    override fun getBool(name: String): Boolean {
+        return context[name]!!.boolValue()
+    }
+
+    override fun getDouble(name: String): Double {
+        return context[name]!!.doubleValue()
+    }
+
+    override fun getString(name: String): String {
+        val jsType: JsType = context[name]!!
+        return when (jsType) {
+            is JsType.Bool, is JsType.DoubleNum, JsType.Null -> throw IllegalArgumentException()
+            is JsType.Json -> jsType.value.toString()
+            is JsType.Str -> jsType.value
+        }
+    }
+
+    override fun getScript(): String {
+        return this.script
     }
 }
