@@ -15,12 +15,26 @@ import kotlinx.serialization.json.JsonObject
 actual class JavaScriptEngine actual constructor() {
     private val quickJs: QuickJs = QuickJs.create()
     private val json: Json = Json.Default
+    private val jsContext: ContextProviderDynamic = ContextProviderDynamic()
 
     private var contextObjects: Map<String, JsType> = emptyMap()
 
     @Volatile
     var isClosed = false
         private set
+
+    init {
+        quickJs.set("mokoJsContext", ContextProvider::class.java, jsContext)
+        quickJs.evaluate(
+            """
+                function mokoJavaScriptProcessResult(result) {
+                    if (typeof result === 'object') return JSON.stringify(result);
+                    else if (typeof result === 'array') return JSON.stringify(result);
+                    else return result;
+                }
+            """.trimIndent()
+        )
+    }
 
     actual fun setContextObjects(vararg context: Pair<String, JsType>) {
         this.contextObjects = mapOf(*context)
@@ -47,11 +61,8 @@ actual class JavaScriptEngine actual constructor() {
         script: String
     ): JsType {
         val scriptContext: Map<String, JsType> = contextObjects + context
-        val jsContext: ContextProvider = ContextProviderImpl(
-            context = scriptContext,
-            script = script
-        )
-        quickJs.set("mokoJsContext", ContextProvider::class.java, jsContext)
+        jsContext.activeScript = script
+        jsContext.context = scriptContext
 
         val scriptWithContext: String = buildString {
             scriptContext.forEach { (name, jsType) ->
@@ -69,11 +80,7 @@ actual class JavaScriptEngine actual constructor() {
                 )
                 append(";\n")
             }
-            append("const script = mokoJsContext.getScript();\n")
-            append("const result = eval(script);\n")
-            append("if (typeof result === 'object') JSON.stringify(result);\n")
-            append("else if (typeof result === 'array') JSON.stringify(result);\n")
-            append("else result;")
+            append("mokoJavaScriptProcessResult(eval(mokoJsContext.getScript()));")
         }
         val result: Any? = quickJs.evaluate(scriptWithContext)
         return handleQuickJsResult(result)
@@ -111,10 +118,10 @@ private interface ContextProvider {
     fun getScript(): String
 }
 
-private class ContextProviderImpl(
-    private val context: Map<String, JsType>,
-    private val script: String
-) : ContextProvider {
+private class ContextProviderDynamic : ContextProvider {
+    var context: Map<String, JsType> = emptyMap()
+    var activeScript: String = ""
+
     override fun getBool(name: String): Boolean {
         return context[name]!!.boolValue()
     }
@@ -132,7 +139,5 @@ private class ContextProviderImpl(
         }
     }
 
-    override fun getScript(): String {
-        return this.script
-    }
+    override fun getScript(): String = activeScript
 }
