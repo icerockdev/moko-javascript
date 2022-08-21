@@ -108,36 +108,3 @@ actual class JavaScriptEngine actual constructor() {
         }
     }
 }
-
-private interface ContextProvider {
-    fun getBool(name: String): Boolean
-    fun getDouble(name: String): Double
-
-    fun getString(name: String): String
-
-    fun getScript(): String
-}
-
-private class ContextProviderDynamic : ContextProvider {
-    var context: Map<String, JsType> = emptyMap()
-    var activeScript: String = ""
-
-    override fun getBool(name: String): Boolean {
-        return context[name]!!.boolValue()
-    }
-
-    override fun getDouble(name: String): Double {
-        return context[name]!!.doubleValue()
-    }
-
-    override fun getString(name: String): String {
-        val jsType: JsType = context[name]!!
-        return when (jsType) {
-            is JsType.Bool, is JsType.DoubleNum, JsType.Null -> throw IllegalArgumentException()
-            is JsType.Json -> jsType.value.toString()
-            is JsType.Str -> jsType.value
-        }
-    }
-
-    override fun getScript(): String = activeScript
-}
