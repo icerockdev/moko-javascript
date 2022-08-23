@@ -4,6 +4,8 @@
 
 package dev.icerock.moko.javascript
 
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -29,6 +31,16 @@ actual class JavaScriptEngine actual constructor() {
             val message = "\"context = $exceptionContext, exception = $exception\""
             throw JavaScriptEvaluationException(cause = null, message = message)
         }
+
+        this.evaluateScript(
+            """
+                function mokoJavaScriptProcessResult(result) {
+                    if (typeof result === 'object') return JSON.stringify(result);
+                    else if (typeof result === 'array') return JSON.stringify(result);
+                    else return result;
+                }
+            """.trimIndent()
+        )
     }
 
     actual fun setContextObjects(vararg context: Pair<String, JsType>) {
@@ -58,22 +70,23 @@ actual class JavaScriptEngine actual constructor() {
             )
         }
 
-        return result?.toMokoJSType() ?: JsType.Null
+        val resultKey = "evaluationResult"
+        jsContext.setObject(
+            `object` = result,
+            forKeyedSubscript = NSString.create(string = resultKey)
+        )
+        val formattedResult = jsContext.evaluateScript("mokoJavaScriptProcessResult($resultKey)")
+        jsContext.setObject(
+            `object` = null,
+            forKeyedSubscript = NSString.create(string = resultKey)
+        )
+
+        return formattedResult?.toMokoJSType() ?: JsType.Null
     }
 
     actual fun close() {
         // Nothing to do here
     }
-
-//    actual fun objectToJsonString(value: JsType): String? {
-//        val localContext = JSContext()
-//        localContext.setObject(
-//            `object` = prepareValueForJsContext(value),
-//            forKeyedSubscript = NSString.create(string = "objectValue")
-//        )
-//
-//        return localContext.evaluateScript("JSON.stringify(objectValue);")?.toString_()
-//    }
 
     private fun prepareValueForJsContext(valueWrapper: JsType): Any? {
         return if (valueWrapper is JsType.Json) valueWrapper.value.getValue()
@@ -108,16 +121,19 @@ private fun JsonElement.getValue(): Any? {
 }
 
 private fun JSValue.toMokoJSType(): JsType {
+    val json = Json.Default
     return when {
         isBoolean -> JsType.Bool(toBool())
-        isString -> JsType.Str(toString_().orEmpty())
+        isString -> try {
+            val jsonElement: JsonElement = json.parseToJsonElement(toString_().orEmpty())
+            if (jsonElement is JsonObject || jsonElement is JsonArray) JsType.Json(jsonElement)
+            else JsType.Str(toString_().orEmpty())
+        } catch (ex: SerializationException) {
+            JsType.Str(toString_().orEmpty())
+        } catch (ex: IllegalStateException) {
+            JsType.Str(toString_().orEmpty())
+        }
         isNumber -> JsType.DoubleNum(toDouble())
-        isObject -> this.toDictionary()!!
-            .toJson()
-            .let { JsType.Json(it) }
-        isArray -> this.toArray()!!
-            .map { it.toJsonElement() }
-            .let { JsType.Json(JsonArray(it)) }
         isNull || isUndefined -> JsType.Null
         else -> throw IllegalArgumentException("unknown JSValue type $this")
     }
