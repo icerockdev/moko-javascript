@@ -66,6 +66,12 @@ actual class JavaScriptEngine actual constructor() {
 
         val scriptWithContext: String = buildString {
             scriptContext.forEach { (name, jsType) ->
+
+                try {
+                    quickJs.evaluate("$name;")
+                    return@forEach
+                } catch (e: Throwable) { }
+
                 append("const ")
                 append(name)
                 append(" = ")
