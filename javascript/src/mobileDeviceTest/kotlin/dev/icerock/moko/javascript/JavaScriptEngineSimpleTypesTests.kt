@@ -4,14 +4,16 @@
 
 package dev.icerock.moko.javascript
 
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class JavaScriptEngineSimpleTypesTests {
     private lateinit var javaScriptEngine: JavaScriptEngine
@@ -82,18 +84,38 @@ class JavaScriptEngineSimpleTypesTests {
         )
     }
 
-    @Ignore // on iOS we got StrValue, on Android - JsonValue
     @Test
     fun jsonReadCheck() {
-        assertTrue {
-            javaScriptEngine.evaluate(
-                context = emptyMap(),
-                script = """
-                    var obj = {male:"Ford", model:"Mustang", number:10};
-                    JSON.stringify(obj);
+        val result: JsType = javaScriptEngine.evaluate(
+            context = mapOf(
+                "test" to JsType.Json(
+                    JsonObject(
+                        mapOf(
+                            "te" to JsonArray(
+                                listOf(JsonPrimitive("tetete"))
+                            )
+                        )
+                    )
+                )
+            ),
+            script = """
+                    var object = {male:"Ford", model:"Mustang", number:10.1};
+                    Object.assign(object, test);
+                    object;
                 """.trimIndent()
-            ).jsonValue() is JsonObject
-        }
+        )
+        assertIs<JsType.Json>(result)
+        assertEquals(
+            expected = JsonObject(
+                mapOf(
+                    "number" to JsonPrimitive(10.1),
+                    "model" to JsonPrimitive("Mustang"),
+                    "te" to JsonArray(listOf(JsonPrimitive("tetete"))),
+                    "male" to JsonPrimitive("Ford")
+                )
+            ).entries,
+            actual = result.value.jsonObject.entries
+        )
     }
 
     @Test
