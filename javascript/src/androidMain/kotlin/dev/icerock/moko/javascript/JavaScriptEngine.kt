@@ -17,8 +17,6 @@ actual class JavaScriptEngine actual constructor() {
     private val json: Json = Json.Default
     private val jsContext: ContextProviderDynamic = ContextProviderDynamic()
 
-    private var contextObjects: Map<String, JsType> = emptyMap()
-
     @Volatile
     var isClosed = false
         private set
@@ -37,7 +35,13 @@ actual class JavaScriptEngine actual constructor() {
     }
 
     actual fun setContextObjects(vararg context: Pair<String, JsType>) {
-        this.contextObjects = mapOf(*context)
+        val scriptContext: Map<String, JsType> = context.toMap()
+        jsContext.context = scriptContext
+
+        val scriptWithContext: String = buildString {
+            fillContext(scriptContext)
+        }
+        quickJs.evaluate(scriptWithContext)
     }
 
     actual fun evaluate(context: Map<String, JsType>, script: String): JsType {
@@ -60,36 +64,33 @@ actual class JavaScriptEngine actual constructor() {
         context: Map<String, JsType>,
         script: String
     ): JsType {
-        val scriptContext: Map<String, JsType> = contextObjects + context
         jsContext.activeScript = script
-        jsContext.context = scriptContext
+        jsContext.context = context
 
         val scriptWithContext: String = buildString {
-            scriptContext.forEach { (name, jsType) ->
-
-                try {
-                    quickJs.evaluate("$name;")
-                    return@forEach
-                } catch (e: Throwable) { }
-
-                append("const ")
-                append(name)
-                append(" = ")
-                append(
-                    when (jsType) {
-                        is JsType.Bool -> "mokoJsContext.getBool('$name')"
-                        is JsType.DoubleNum -> "mokoJsContext.getDouble('$name')"
-                        is JsType.Json -> "JSON.parse(mokoJsContext.getString('$name'))"
-                        JsType.Null -> "null"
-                        is JsType.Str -> "mokoJsContext.getString('$name')"
-                    }
-                )
-                append(";\n")
-            }
+            fillContext(context)
             append("mokoJavaScriptProcessResult(eval(mokoJsContext.getScript()));")
         }
         val result: Any? = quickJs.evaluate(scriptWithContext)
         return handleQuickJsResult(result)
+    }
+
+    private fun StringBuilder.fillContext(context: Map<String, JsType>) {
+        context.forEach { (name, jsType) ->
+            append("const ")
+            append(name)
+            append(" = ")
+            append(
+                when (jsType) {
+                    is JsType.Bool -> "mokoJsContext.getBool('$name')"
+                    is JsType.DoubleNum -> "mokoJsContext.getDouble('$name')"
+                    is JsType.Json -> "JSON.parse(mokoJsContext.getString('$name'))"
+                    JsType.Null -> "null"
+                    is JsType.Str -> "mokoJsContext.getString('$name')"
+                }
+            )
+            append(";\n")
+        }
     }
 
     private fun handleQuickJsResult(result: Any?): JsType {
