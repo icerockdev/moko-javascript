@@ -14,7 +14,13 @@ expect class JavaScriptEngine() {
     fun evaluate(context: Map<String, JsType>, script: String): JsType
 
     /**
+     * Set some [context] for all evaluate calls.
+     */
+    fun setContextObjects(vararg context: Pair<String, JsType>)
+
+    /**
      * Closes the engine and releases the allocated memory.
      */
     fun close()
+
 }
