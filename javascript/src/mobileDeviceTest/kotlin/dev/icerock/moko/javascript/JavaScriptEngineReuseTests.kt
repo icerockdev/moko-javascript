@@ -42,4 +42,28 @@ class JavaScriptEngineReuseTests {
             actual = result
         )
     }
+
+    @Test
+    fun reuseGlobalContextTest() {
+        javaScriptEngine.setContextObjects(
+            "myTest" to JsType.Str("global")
+        )
+        javaScriptEngine.evaluate(
+            context = emptyMap(),
+            """
+                var firstVal = "hello";
+            """.trimIndent()
+        )
+        val result = javaScriptEngine.evaluate(
+            context = mapOf("secondVal" to JsType.Str("world")),
+            """
+                firstVal + " " + myTest + " " + secondVal
+            """.trimIndent()
+        )
+
+        assertEquals(
+            expected = JsType.Str("hello global world"),
+            actual = result
+        )
+    }
 }
