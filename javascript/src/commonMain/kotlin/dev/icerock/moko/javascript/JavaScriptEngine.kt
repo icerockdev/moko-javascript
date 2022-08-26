@@ -6,7 +6,7 @@ package dev.icerock.moko.javascript
 
 expect class JavaScriptEngine() {
     /**
-     * Evaluate some [script].
+     * Evaluate some [script] with external [context].
      *
      * @throws JavaScriptEvaluationException in case of an error in the engine evaluation or if the
      * engine has already been closed.
@@ -14,7 +14,7 @@ expect class JavaScriptEngine() {
     fun evaluate(context: Map<String, JsType>, script: String): JsType
 
     /**
-     * Set some [context] with external [context].
+     * Set some [context] for all evaluate calls.
      */
     fun setContextObjects(vararg context: Pair<String, JsType>)
 
