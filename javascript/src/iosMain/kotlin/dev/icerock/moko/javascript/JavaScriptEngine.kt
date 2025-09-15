@@ -45,6 +45,7 @@ actual class JavaScriptEngine actual constructor() {
         )
     }
 
+    @OptIn(BetaInteropApi::class)
     actual fun setContextObjects(vararg context: Pair<String, JsType>) {
         context.forEach { (key, value) ->
             val contextObject: Any? = prepareValueForJsContext(value)
@@ -55,6 +56,7 @@ actual class JavaScriptEngine actual constructor() {
         }
     }
 
+    @OptIn(BetaInteropApi::class)
     actual fun evaluate(context: Map<String, JsType>, script: String): JsType {
         context.forEach { (key, value) ->
             jsContext.setObject(
@@ -132,9 +134,9 @@ private fun JSValue.toMokoJSType(): JsType {
             val jsonElement: JsonElement = json.parseToJsonElement(toString_().orEmpty())
             if (jsonElement is JsonObject || jsonElement is JsonArray) JsType.Json(jsonElement)
             else JsType.Str(toString_().orEmpty())
-        } catch (ex: SerializationException) {
+        } catch (_: SerializationException) {
             JsType.Str(toString_().orEmpty())
-        } catch (ex: IllegalStateException) {
+        } catch (_: IllegalStateException) {
             JsType.Str(toString_().orEmpty())
         }
         isNumber -> JsType.DoubleNum(toDouble())
