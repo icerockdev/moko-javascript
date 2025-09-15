@@ -7,18 +7,18 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     id("multiplatform-library-convention")
-    id("dev.icerock.mobile.multiplatform.android-manifest")
     id("publication-convention")
 }
 
 android {
+    namespace = "dev.icerock.moko.javascript"
     testOptions.unitTests.isIncludeAndroidResources = true
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
-        getByName("androidTest").java.srcDirs(
+        getByName("test").java.srcDirs(
             file("src/androidAndroidTest/kotlin"),
             file("src/mobileDeviceTest/kotlin")
         )
@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    androidMainImplementation(libs.quickjs)
+    androidMainImplementation(libs.ziplineAndroid)
     commonMainImplementation(libs.kotlinSerialization)
     commonTestImplementation(libs.kotlinTest)
     commonTestImplementation(libs.kotlinTestAnnotations)

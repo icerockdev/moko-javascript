@@ -10,29 +10,44 @@ plugins {
 }
 
 kotlin {
-    ios()
+    iosX64()
+    iosArm64()
     iosSimulatorArm64()
-    android {
+    androidTarget {
         publishLibraryVariants("release", "debug")
     }
-    sourceSets {
-        val iosSimulatorArm64Main by getting
-        val iosSimulatorArm64Test by getting
 
+    sourceSets {
         val mobileDeviceTest by creating
 
-        val commonTest by getting
-        val iosMain by getting
-        val iosTest by getting
-        val androidAndroidTest by getting
+        val commonMain by getting
+        val iosX64Main by getting
+        val iosArm64Main by getting
+        val iosSimulatorArm64Main by getting
 
-        iosSimulatorArm64Main.dependsOn(iosMain)
-        iosSimulatorArm64Test.dependsOn(iosTest)
+        val iosMain by creating {
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
+        }
+        iosMain.dependsOn(commonMain)
+
+        val iosX64Test by getting
+        val iosArm64Test by getting
+        val iosSimulatorArm64Test by getting
+
+        val iosTest by creating {
+            iosX64Test.dependsOn(this)
+            iosArm64Test.dependsOn(this)
+            iosSimulatorArm64Test.dependsOn(this)
+        }
+        val androidUnitTest by getting
+
+        val commonTest by getting
 
         mobileDeviceTest.dependsOn(commonTest)
         iosTest.dependsOn(mobileDeviceTest)
-        androidAndroidTest.dependsOn(mobileDeviceTest)
-
+        androidUnitTest.dependsOn(mobileDeviceTest)
     }
 }
 

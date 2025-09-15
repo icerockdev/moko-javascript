@@ -4,6 +4,8 @@
 
 package dev.icerock.moko.javascript
 
+import java.util.Collections.emptyMap
+
 internal class ContextProviderDynamic : ContextProvider {
     var context: Map<String, JsType> = emptyMap()
     var activeScript: String = ""

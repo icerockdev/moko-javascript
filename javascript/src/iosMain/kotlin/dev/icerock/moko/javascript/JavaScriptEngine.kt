@@ -4,6 +4,8 @@
 
 package dev.icerock.moko.javascript
 
+import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -94,22 +96,24 @@ actual class JavaScriptEngine actual constructor() {
     }
 }
 
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun JsonObject.toNSDictionary(): NSDictionary {
     val data = NSString.create(string = this.toString()).dataUsingEncoding(NSUTF8StringEncoding)
         ?: return NSDictionary()
     return (NSJSONSerialization.JSONObjectWithData(
         data = data,
-        options = 0,
+        options = 0u,
         error = null
     ) as? NSDictionary) ?: NSDictionary()
 }
 
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun JsonArray.toNSArray(): NSArray {
     val data = NSString.create(string = this.toString()).dataUsingEncoding(NSUTF8StringEncoding)
         ?: return NSArray()
     return (NSJSONSerialization.JSONObjectWithData(
         data = data,
-        options = 0,
+        options = 0u,
         error = null
     ) as? NSArray) ?: NSArray()
 }

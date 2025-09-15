@@ -12,8 +12,14 @@ plugins {
 }
 
 kotlin {
-    android()
-    ios()
+    androidTarget()
+    iosArm64()
+    iosSimulatorArm64()
+    iosX64()
+}
+
+android {
+    namespace = "com.icerockdev.library"
 }
 
 dependencies {
