@@ -9,6 +9,8 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         google()
+
+        includeBuild("javascript-build-logic")
     }
 
     versionCatalogs {
