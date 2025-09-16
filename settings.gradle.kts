@@ -1,6 +1,7 @@
 /*
  * Copyright 2021 IceRock MAG Inc. Use of this source code is governed by the Apache 2.0 license.
  */
+rootProject.name = "moko-javascript"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
@@ -8,12 +9,18 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         google()
+    }
 
-        jcenter()
+    versionCatalogs {
+        create("moko") {
+            from(files("gradle/moko.versions.toml"))
+        }
     }
 }
 
-includeBuild("javascript-build-logic")
+if (gradle.parent == null) {
+    includeBuild("javascript-build-logic")
+}
 
 include(":javascript")
 include(":sample:android-app")
