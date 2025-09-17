@@ -12,16 +12,21 @@ plugins {
 
 android {
     namespace = "dev.icerock.moko.javascript"
-    testOptions.unitTests.isIncludeAndroidResources = true
+
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     sourceSets {
-        getByName("test").java.srcDirs(
-            file("src/androidAndroidTest/kotlin"),
-            file("src/mobileDeviceTest/kotlin")
-        )
+        getByName("test") {
+            java.srcDirs(
+                "src/mobileDeviceTest/kotlin"
+            )
+        }
     }
 }
 
