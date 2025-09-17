@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.mokoMultiplatform)
-    implementation(libs.kotlinGradlePlugin)
-    implementation(libs.androidGradlePlugin)
-    implementation(libs.detektPlugin)
+    api(libs.mokoMultiplatform)
+    api(libs.kotlinGradlePlugin)
+    api(libs.androidGradlePlugin)
+    api(libs.detektPlugin)
 }
