@@ -18,8 +18,6 @@ kotlin {
     }
 
     sourceSets {
-        val mobileDeviceTest by creating
-
         val commonMain by getting
         val iosX64Main by getting
         val iosArm64Main by getting
@@ -36,18 +34,25 @@ kotlin {
         val iosArm64Test by getting
         val iosSimulatorArm64Test by getting
 
+        val commonTest by getting
+
+        val mobileDeviceTest by creating {
+            dependsOn(commonTest)
+            kotlin.srcDir("src/mobileDeviceTest/kotlin")
+        }
         val iosTest by creating {
             iosX64Test.dependsOn(this)
             iosArm64Test.dependsOn(this)
             iosSimulatorArm64Test.dependsOn(this)
+            dependsOn(mobileDeviceTest)
         }
-        val androidUnitTest by getting
-
-        val commonTest by getting
-
-        mobileDeviceTest.dependsOn(commonTest)
-        iosTest.dependsOn(mobileDeviceTest)
-        androidUnitTest.dependsOn(mobileDeviceTest)
     }
 }
 
+android {
+    sourceSets {
+        getByName("androidTest") {
+            java.srcDirs("src/mobileDeviceTest/kotlin") // instrumented tests
+        }
+    }
+}
