@@ -3,14 +3,20 @@ plugins {
 }
 
 repositories {
-    google()
-    gradlePluginPortal()
+    google {
+        content {
+            includeGroupByRegex("com\\.android.*")
+            includeGroupByRegex("com\\.google.*")
+            includeGroupByRegex("androidx.*")
+        }
+    }
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
-    implementation("dev.icerock:mobile-multiplatform:0.14.1")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.10")
-    implementation("com.android.tools.build:gradle:8.12.3")
-    implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.15.0")
+    implementation(libs.mokoMultiplatform)
+    implementation(libs.kotlinGradlePlugin)
+    implementation(libs.androidGradlePlugin)
+    implementation(libs.detektPlugin)
 }

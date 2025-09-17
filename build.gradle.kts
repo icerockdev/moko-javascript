@@ -4,8 +4,15 @@
 
 buildscript {
     repositories {
-        google()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
         mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
         classpath(":javascript-build-logic")
@@ -15,6 +22,6 @@ buildscript {
 allprojects {
     plugins.withId("org.gradle.maven-publish") {
         group = "dev.icerock.moko"
-        version = libs.versions.mokoJavascriptVersion.get()
+        version = moko.versions.mokoJavascriptVersion.get()
     }
 }
