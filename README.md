@@ -19,8 +19,8 @@ This is a Kotlin MultiPlatform library that allows you to run JavaScript code fr
 - Pass objects to JavaScript as global vars
 
 ## Requirements
-- Gradle version 6.0+
-- Android API 16+
+- Gradle version 8.0+
+- Android API 21+
 - iOS version 9.0+
 
 ## Installation
