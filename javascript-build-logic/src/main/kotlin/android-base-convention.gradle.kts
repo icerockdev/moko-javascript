@@ -8,7 +8,7 @@ configure<BaseExtension> {
     compileSdkVersion(36)
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 21
         targetSdk = 36
     }
 
