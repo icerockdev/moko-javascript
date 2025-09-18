@@ -36,23 +36,24 @@ kotlin {
 
         val commonTest by getting
 
-        val mobileDeviceTest by creating {
-            dependsOn(commonTest)
+        val mobileDeviceTestNative by creating {
             kotlin.srcDir("src/mobileDeviceTest/kotlin")
+            dependsOn(commonTest)
         }
+
         val iosTest by creating {
             iosX64Test.dependsOn(this)
             iosArm64Test.dependsOn(this)
             iosSimulatorArm64Test.dependsOn(this)
-            dependsOn(mobileDeviceTest)
+            dependsOn(mobileDeviceTestNative)
         }
-    }
-}
 
-android {
-    sourceSets {
-        getByName("androidTest") {
-            java.srcDirs("src/mobileDeviceTest/kotlin") // instrumented tests
+        val mobileDeviceTestAndroid by creating {
+            kotlin.srcDir("src/mobileDeviceTest/kotlin")
+        }
+
+        val androidInstrumentedTest by getting {
+            dependsOn(mobileDeviceTestAndroid)
         }
     }
 }
