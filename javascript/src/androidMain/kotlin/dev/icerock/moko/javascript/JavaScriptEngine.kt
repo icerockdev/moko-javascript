@@ -15,7 +15,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 @OptIn(EngineApi::class)
-actual class JavaScriptEngine actual constructor() {
+actual class JavaScriptEngine {
 
     private val json: Json = Json
     private val jsContext: ContextProviderDynamic = ContextProviderDynamic()

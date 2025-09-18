@@ -26,7 +26,7 @@ import platform.JavaScriptCore.JSContext
 import platform.JavaScriptCore.JSValue
 import platform.JavaScriptCore.setObject
 
-actual class JavaScriptEngine actual constructor() {
+actual class JavaScriptEngine {
 
     private val jsContext = JSContext().apply {
         exceptionHandler = { exceptionContext, exception ->
@@ -162,7 +162,7 @@ private fun Any?.toJsonElement(): JsonElement {
         is NSString -> JsonPrimitive(this as String)
         is NSNumber -> JsonPrimitive(this.doubleValue)
         is NSDictionary -> (this as Map<Any?, *>).toJson()
-        is NSArray -> (this as List<*>).map { it.toJsonElement() }.let { JsonArray(it) }
+        is NSArray -> JsonArray((this as List<*>).map { it.toJsonElement() })
         else -> throw IllegalArgumentException("unknown JSValue type $this")
     }
 }

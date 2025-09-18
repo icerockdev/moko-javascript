@@ -33,6 +33,7 @@ android {
 dependencies {
     androidMainImplementation(libs.ziplineAndroid)
     commonMainImplementation(libs.kotlinSerialization)
+
     commonTestImplementation(libs.kotlinTest)
     commonTestImplementation(libs.kotlinTestAnnotations)
     commonTestImplementation(libs.mokoTest)
