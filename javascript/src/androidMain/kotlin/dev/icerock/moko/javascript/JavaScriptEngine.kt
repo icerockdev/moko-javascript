@@ -4,26 +4,30 @@
 
 package dev.icerock.moko.javascript
 
-import app.cash.quickjs.QuickJs
-import app.cash.quickjs.QuickJsException
+import app.cash.zipline.EngineApi
+import app.cash.zipline.QuickJsException
+import app.cash.zipline.Zipline
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
-actual class JavaScriptEngine actual constructor() {
-    private val quickJs: QuickJs = QuickJs.create()
-    private val json: Json = Json.Default
+@OptIn(EngineApi::class)
+actual class JavaScriptEngine {
+
+    private val json: Json = Json
     private val jsContext: ContextProviderDynamic = ContextProviderDynamic()
+    private val zipline: Zipline = Zipline.create(dispatcher = Dispatchers.IO)
 
     @Volatile
     var isClosed = false
         private set
 
     init {
-        quickJs.set("mokoJsContext", ContextProvider::class.java, jsContext)
-        quickJs.evaluate(
+        zipline.bind<ContextProvider>("mokoJsContext", jsContext)
+        zipline.quickJs.evaluate(
             """
                 function mokoJavaScriptProcessResult(result) {
                     if (typeof result === 'object') return JSON.stringify(result);
@@ -41,7 +45,7 @@ actual class JavaScriptEngine actual constructor() {
         val scriptWithContext: String = buildString {
             fillContext(scriptContext)
         }
-        quickJs.evaluate(scriptWithContext)
+        zipline.quickJs.evaluate(scriptWithContext)
     }
 
     actual fun evaluate(context: Map<String, JsType>, script: String): JsType {
@@ -56,7 +60,7 @@ actual class JavaScriptEngine actual constructor() {
 
     actual fun close() {
         if (isClosed) return
-        quickJs.close()
+        zipline.quickJs.close()
         isClosed = true
     }
 
@@ -71,7 +75,7 @@ actual class JavaScriptEngine actual constructor() {
             fillContext(context)
             append("mokoJavaScriptProcessResult(eval(mokoJsContext.getScript()));")
         }
-        val result: Any? = quickJs.evaluate(scriptWithContext)
+        val result: Any? = zipline.quickJs.evaluate(scriptWithContext)
         return handleQuickJsResult(result)
     }
 
@@ -104,9 +108,9 @@ actual class JavaScriptEngine actual constructor() {
                 val jsonElement: JsonElement = json.parseToJsonElement(result)
                 if (jsonElement is JsonObject || jsonElement is JsonArray) JsType.Json(jsonElement)
                 else JsType.Str(result)
-            } catch (ex: SerializationException) {
+            } catch (_: SerializationException) {
                 JsType.Str(result)
-            } catch (ex: IllegalStateException) {
+            } catch (_: IllegalStateException) {
                 JsType.Str(result)
             }
             else -> throw JavaScriptEvaluationException(

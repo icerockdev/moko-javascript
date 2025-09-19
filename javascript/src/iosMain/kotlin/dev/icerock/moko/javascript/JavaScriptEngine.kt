@@ -4,6 +4,8 @@
 
 package dev.icerock.moko.javascript
 
+import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -24,7 +26,7 @@ import platform.JavaScriptCore.JSContext
 import platform.JavaScriptCore.JSValue
 import platform.JavaScriptCore.setObject
 
-actual class JavaScriptEngine actual constructor() {
+actual class JavaScriptEngine {
 
     private val jsContext = JSContext().apply {
         exceptionHandler = { exceptionContext, exception ->
@@ -43,6 +45,7 @@ actual class JavaScriptEngine actual constructor() {
         )
     }
 
+    @OptIn(BetaInteropApi::class)
     actual fun setContextObjects(vararg context: Pair<String, JsType>) {
         context.forEach { (key, value) ->
             val contextObject: Any? = prepareValueForJsContext(value)
@@ -53,6 +56,7 @@ actual class JavaScriptEngine actual constructor() {
         }
     }
 
+    @OptIn(BetaInteropApi::class)
     actual fun evaluate(context: Map<String, JsType>, script: String): JsType {
         context.forEach { (key, value) ->
             jsContext.setObject(
@@ -94,22 +98,24 @@ actual class JavaScriptEngine actual constructor() {
     }
 }
 
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun JsonObject.toNSDictionary(): NSDictionary {
     val data = NSString.create(string = this.toString()).dataUsingEncoding(NSUTF8StringEncoding)
         ?: return NSDictionary()
     return (NSJSONSerialization.JSONObjectWithData(
         data = data,
-        options = 0,
+        options = 0u,
         error = null
     ) as? NSDictionary) ?: NSDictionary()
 }
 
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun JsonArray.toNSArray(): NSArray {
     val data = NSString.create(string = this.toString()).dataUsingEncoding(NSUTF8StringEncoding)
         ?: return NSArray()
     return (NSJSONSerialization.JSONObjectWithData(
         data = data,
-        options = 0,
+        options = 0u,
         error = null
     ) as? NSArray) ?: NSArray()
 }
@@ -128,9 +134,9 @@ private fun JSValue.toMokoJSType(): JsType {
             val jsonElement: JsonElement = json.parseToJsonElement(toString_().orEmpty())
             if (jsonElement is JsonObject || jsonElement is JsonArray) JsType.Json(jsonElement)
             else JsType.Str(toString_().orEmpty())
-        } catch (ex: SerializationException) {
+        } catch (_: SerializationException) {
             JsType.Str(toString_().orEmpty())
-        } catch (ex: IllegalStateException) {
+        } catch (_: IllegalStateException) {
             JsType.Str(toString_().orEmpty())
         }
         isNumber -> JsType.DoubleNum(toDouble())
@@ -156,7 +162,7 @@ private fun Any?.toJsonElement(): JsonElement {
         is NSString -> JsonPrimitive(this as String)
         is NSNumber -> JsonPrimitive(this.doubleValue)
         is NSDictionary -> (this as Map<Any?, *>).toJson()
-        is NSArray -> (this as List<*>).map { it.toJsonElement() }.let { JsonArray(it) }
+        is NSArray -> JsonArray((this as List<*>).map { it.toJsonElement() })
         else -> throw IllegalArgumentException("unknown JSValue type $this")
     }
 }

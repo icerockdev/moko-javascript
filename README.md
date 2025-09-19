@@ -1,3 +1,4 @@
+![moko-javascript](https://user-images.githubusercontent.com/5010169/128704305-df9c8e9e-200c-4d34-801e-a5b01c80f0cb.png)  
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Download](https://img.shields.io/maven-central/v/dev.icerock.moko/javascript) ](https://repo1.maven.org/maven2/dev/icerock/moko/javascript) ![kotlin-version](https://kotlin-version.aws.icerock.dev/kotlin-version?group=dev.icerock.moko&name=javascript)
 
 # Mobile Kotlin javascript
@@ -18,8 +19,8 @@ This is a Kotlin MultiPlatform library that allows you to run JavaScript code fr
 - Pass objects to JavaScript as global vars
 
 ## Requirements
-- Gradle version 6.0+
-- Android API 16+
+- Gradle version 8.0+
+- Android API 21+
 - iOS version 9.0+
 
 ## Installation
@@ -35,7 +36,7 @@ allprojects {
 project build.gradle
 ```groovy
 dependencies {
-    commonMainApi("dev.icerock.moko:javascript:0.3.0")
+    commonMainApi("dev.icerock.moko:javascript:0.4.0")
 }
 ```
 

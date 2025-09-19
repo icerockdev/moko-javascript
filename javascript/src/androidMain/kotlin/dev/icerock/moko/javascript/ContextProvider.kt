@@ -4,7 +4,9 @@
 
 package dev.icerock.moko.javascript
 
-internal interface ContextProvider {
+import app.cash.zipline.ZiplineService
+
+internal interface ContextProvider : ZiplineService {
     fun getBool(name: String): Boolean
     fun getDouble(name: String): Double
 

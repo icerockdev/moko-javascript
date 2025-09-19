@@ -4,10 +4,10 @@
 
 plugins {
     id("android-app-convention")
-    id("kotlin-android")
 }
 
 android {
+    namespace = "com.icerockdev.app"
     defaultConfig {
         applicationId = "dev.icerock.moko.samples.javascript"
 

@@ -2,7 +2,7 @@
  * Copyright 2025 IceRock MAG Inc. Use of this source code is governed by the Apache 2.0 license.
  */
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+rootProject.name = "javascript-build-logic"
 
 dependencyResolutionManagement {
     repositories {
@@ -13,22 +13,13 @@ dependencyResolutionManagement {
                 includeGroupByRegex("androidx.*")
             }
         }
+
         mavenCentral()
     }
 
     versionCatalogs {
-        create("moko") {
-            from(files("gradle/moko.versions.toml"))
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
         }
     }
 }
-
-rootProject.name = "moko-javascript"
-
-if (gradle.parent == null) {
-    includeBuild("javascript-build-logic")
-}
-
-include(":javascript")
-include(":sample:android-app")
-include(":sample:mpp-library")
