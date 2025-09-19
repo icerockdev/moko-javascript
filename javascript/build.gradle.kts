@@ -8,6 +8,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     id("multiplatform-library-convention")
     id("publication-convention")
+    id("app.cash.zipline")
 }
 
 android {

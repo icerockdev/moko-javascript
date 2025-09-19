@@ -17,6 +17,7 @@ buildscript {
     }
     dependencies {
         classpath(libs.mokoGradlePlugin)
+        classpath("app.cash.zipline:zipline-gradle-plugin:1.23.0")
         classpath(":javascript-build-logic")
     }
 }
