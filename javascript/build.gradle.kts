@@ -20,14 +20,6 @@ android {
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
-
-    sourceSets {
-        getByName("test") {
-            java.srcDirs(
-                "src/mobileDeviceTest/kotlin"
-            )
-        }
-    }
 }
 
 dependencies {
